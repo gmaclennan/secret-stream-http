@@ -1,0 +1,20 @@
+{
+  "name": "secret-stream-http",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@hyperswarm/secret-stream": "^6.8.1",
+    "@whatwg-node/server": "^0.10.12",
+    "itty-router": "^5.0.22",
+    "streamx": "^2.22.1",
+    "undici": "^7.15.0"
+  }
+}
