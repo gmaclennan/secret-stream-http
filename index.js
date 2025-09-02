@@ -1,5 +1,5 @@
 import { createServer as createHttpServer } from "./lib/http-server.js";
-import { SecretStreamFetcher } from "./lib/secret-stream-fetcher.js";
+import { secretStreamFetch } from "./lib/secret-stream-fetch.js";
 import { createServer as createSecretStreamServer } from "./lib/secret-stream-http-server.js";
 import { once } from "node:events";
 
@@ -9,10 +9,8 @@ secretStreamServer.listen(3000, "0.0.0.0");
 await once(secretStreamServer, "listening");
 const baseUrl = new URL("http://localhost:3000");
 
-const fetcher = new SecretStreamFetcher();
-
-console.log(await fetchJson(fetcher.fetch, baseUrl));
-console.log(await fetchJson(fetcher.fetch, new URL("/hello", baseUrl)));
+console.log(await fetchJson(secretStreamFetch, baseUrl));
+console.log(await fetchJson(secretStreamFetch, new URL("/hello", baseUrl)));
 
 secretStreamServer.close();
 
