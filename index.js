@@ -9,12 +9,15 @@ secretStreamServer.listen(3000, "0.0.0.0");
 await once(secretStreamServer, "listening");
 const baseUrl = new URL("http://localhost:3000");
 
-console.log(await fetchJson(secretStreamFetch, baseUrl));
-console.log(await fetchJson(secretStreamFetch, new URL("/hello", baseUrl)));
+console.log(await fetchJson(baseUrl));
+console.log(await fetchJson(new URL("/hello", baseUrl)));
 
 secretStreamServer.close();
 
-async function fetchJson(fetch, url) {
-  const response = await fetch(url);
+/**
+ * @param {URL | string} url
+ */
+async function fetchJson(url) {
+  const response = await secretStreamFetch(url);
   return response.json();
 }
