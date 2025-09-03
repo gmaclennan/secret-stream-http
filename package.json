@@ -15,7 +15,7 @@
     "@whatwg-node/server": "^0.10.12",
     "itty-router": "^5.0.22",
     "streamx": "^2.22.1",
-    "undici": "^7.15.0"
+    "undici": "^6.21.3"
   },
   "devDependencies": {
     "@digidem/types": "^2.3.0",
