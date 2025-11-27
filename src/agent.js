@@ -53,29 +53,71 @@ export class Agent extends UndiciAgent {
 
 	/** @type {import('undici').buildConnector.connector} */
 	#connect({ hostname, port }, callback) {
-		const socket = connect({ host: hostname, port: port ? +port : 80 }, () => {
+		let called = false
+		const safeCallback = (err, result) => {
+			if (called) return
+			called = true
+			callback(err, result)
+		}
+
+		const socket = connect({ host: hostname, port: port ? +port : 80 })
+
+		const onConnectError = (err) => {
+			socket.destroy()
+			safeCallback(err, null)
+		}
+
+		socket.once('error', onConnectError)
+
+		socket.once('connect', () => {
+			socket.removeListener('error', onConnectError)
+
 			const secretStream = new SecretStream(true, socket, {
 				keyPair: this.#keyPair,
 			})
 			const secretSocket = new SecretStreamSocket(secretStream)
-			secretStream.once('open', () => {
+
+			const cleanup = () => {
+				secretStream.removeListener('open', onOpen)
+				secretStream.removeListener('error', onError)
+				socket.removeListener('error', onSocketError)
+			}
+
+			const onOpen = () => {
+				cleanup()
 				if (!secretStream.remotePublicKey) {
 					secretStream.destroy()
-					callback(new Error('Remote public key is missing'), null)
+					safeCallback(new Error('Remote public key is missing'), null)
 				} else if (
 					this.#remotePublicKey &&
 					!this.#remotePublicKey.equals(secretStream.remotePublicKey)
 				) {
 					secretStream.destroy()
-					callback(
+					safeCallback(
 						new Error('Remote public key does not match expected key'),
 						null,
 					)
 				} else {
 					// @ts-expect-error - not a socket, but close enough
-					callback(null, secretSocket)
+					safeCallback(null, secretSocket)
 				}
-			})
+			}
+
+			const onError = (err) => {
+				cleanup()
+				secretStream.destroy()
+				safeCallback(err, null)
+			}
+
+			const onSocketError = (err) => {
+				cleanup()
+				secretStream.destroy()
+				safeCallback(err, null)
+			}
+
+			secretStream.once('open', onOpen)
+			secretStream.once('error', onError)
+			socket.once('error', onSocketError)
 		})
 	}
 }
