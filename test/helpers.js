@@ -37,10 +37,7 @@ export async function createTestServer(t, routes) {
 	})
 
 	t.after(async () => {
-		// closeAllConnections() was added in Node.js 18.2.0
-		if (httpServer.closeAllConnections) {
-			httpServer.closeAllConnections()
-		}
+		httpServer.closeAllConnections()
 		for (const socket of sockets) {
 			socket.destroy()
 		}
